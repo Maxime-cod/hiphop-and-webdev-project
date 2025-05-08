@@ -1,0 +1,35 @@
+/* your existing dark theme and utility styles */
+body {
+  font-family: sans-serif;
+  background: #1e1e1e;
+  color: #f0f0f0;
+  padding: 1rem;
+}
+.clock {
+  background: #2e2e2e;
+  padding: 1rem;
+  margin: .5rem 0;
+  border-radius: .5rem;
+  display: inline-block;
+  min-width: 10rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.tz-picker { position: relative; display: inline-block; }
+.tz-picker ul {
+  position: absolute;
+  top: 100%; left: 0;
+  width: 100%;
+  max-height: 200px;     /* ↑ bump this up for more room */
+  overflow-y: auto;      /* ← makes it scroll */
+  background: #2e2e2e;
+  border: 1px solid #444;
+  border-radius: .25rem;
+  margin: 0; padding: 0;
+  list-style: none;
+  z-index: 10;           /* ensure it floats above other content */
+}
+
+.tz-picker li { padding: .25rem .5rem; cursor: pointer; }
+.tz-picker li:hover { background: #444; }
+.hidden { display: none; }

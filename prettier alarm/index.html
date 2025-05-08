@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HipHop Alarm Clock</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    #alarmText {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: black; /* initial color is black */
+    }
+    .controls {
+      display: flex;
+      gap: 40px; /* space between buttons */
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Dummy process object for modules that rely on process.env -->
+  <script>
+    window.process = { env: {} };
+  </script>
+  <!-- Import map: maps '@hop/hiphop' to your HipHop client file -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@hop/hiphop": "/hiphop-client.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="alarmText">--:--:--</div>
+  <div class="controls">
+    <button id="snoozeButton">Snooze</button>
+    <button id="stopButton">Stop</button>
+  </div>
+  <!-- Audio element for the beep sound -->
+  <audio id="beepSound" src="beep.mp3" preload="auto" type="audio/mpeg"></audio>
+  
+  <script type="module">
+    // Unlock audio on first user interaction.
+    document.addEventListener('click', () => {
+      const beepSound = document.getElementById("beepSound");
+      if (beepSound) {
+        beepSound.play()
+          .then(() => { beepSound.pause(); console.log("Audio unlocked!"); })
+          .catch(err => console.error("Audio unlock error:", err));
+      }
+    }, { once: true });
+    
+    // Import the compiled HipHop alarm module.
+    import { mach } from "./alarm.mjs";
+    console.log("Reactive machine imported:", mach);
+    
+    const alarmText = document.getElementById("alarmText");
+    const beepSound = document.getElementById("beepSound");
+    
+    // Listen for the BEEP event and update the UI.
+    mach.addEventListener("BEEP", evt => {
+      console.log("BEEP event received:", evt);
+      if (evt.nowval === true) {
+        // Show current time in the text and flash red.
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        alarmText.textContent = timeString;
+        alarmText.style.color = "red";
+        // Play beep sound.
+        beepSound.currentTime = 0;
+        beepSound.play().catch(err => console.error("Audio play error:", err));
+        // After 200ms, revert text color
+        setTimeout(() => {
+          alarmText.style.color = "black";
+        }, 200);
+      }
+    });
+    
+    // Helper function to send a CLOCK pulse with optional extra signals.
+    function sendClockPulse(extraSignals = {}) {
+      const signals = { CLOCK: true, ...extraSignals };
+      console.log("Sending clock pulse with signals:", signals);
+      mach.react(signals);
+    }
+    
+    // Send a CLOCK pulse every second.
+    setInterval(() => {
+      sendClockPulse();
+    }, 1000);
+    
+    // When the snooze button is clicked.
+    document.getElementById("snoozeButton").addEventListener("click", () => {
+      console.log("Snooze button clicked.");
+      sendClockPulse({ SNOOZE: true });
+    });
+    
+    // When the stop button is clicked.
+    document.getElementById("stopButton").addEventListener("click", () => {
+      console.log("Stop button clicked.");
+      sendClockPulse({ STOP: true });
+    });
+  </script>
+</body>
+</html>

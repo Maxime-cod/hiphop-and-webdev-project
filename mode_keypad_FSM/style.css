@@ -1,0 +1,116 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .main-container {
+display: grid;
+grid-template-columns: 50% 50%;
+align-items: stretch;     /* stretch both panels to same height */
+max-width: 100vw;
+margin: auto;
+}
+
+.diagram-panel {
+/* give the panel a fixed size */
+width: 400px;
+height: 350px;
+border: 2px solid #ccc;
+border-radius: 8px;
+padding: 10px;
+background: #fff;
+box-sizing: border-box;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+
+
+.keypad-panel {
+display: flex;
+flex-direction: column;
+justify-content: center;  /* center keypad vertically */
+align-items: center;      /* center keypad horizontally */
+/* no fixed height needed: the grid will make this panel as tall as the diagram */
+}
+
+  .diagram {
+    width: 100%;
+    height: 100%;
+  }
+  .state {
+    fill: #ddd;
+    stroke: #333;
+    stroke-width: 2;
+  }
+  .state.active {
+    fill: #4CAF50;
+    color: #fff;
+  }
+  .arrow {
+stroke: #888;
+stroke-width: 2;
+marker-end: url(#arrowhead);
+transition: stroke 0.2s, marker-end 0.2s;
+}
+.arrow.highlight {
+stroke: #FF5722;
+marker-end: url(#arrowhead-highlight);
+}
+
+  .label {
+    font-size: 14px;
+    fill: #333;
+  }
+  .keypad {
+display: grid;
+grid-template-columns: repeat(3, 60px);   /* fixed-width columns */
+grid-auto-rows: 60px;                     /* fixed-height rows */
+gap: 10px;
+}
+
+  .key-btn {
+    font-size: 1.3em;
+    border: none;
+    border-radius: 6px;
+    background: #2196F3;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .key-btn:hover:enabled {
+    background: #1976D2;
+  }
+  .key-btn:disabled {
+    background: #aaa;
+    cursor: default;
+  }
+
+  /* mode‐switcher */
+#mode-bar {
+    display: inline-block;
+  }
+  .mode-btn {
+    margin: 0 5px;
+    padding: 6px 12px;
+    border: 1px solid #888;
+    background: #fff;
+    cursor: pointer;
+  }
+  .mode-btn.active {
+    background: #2196F3;
+    color: #fff;
+    border-color: #1976D2;
+  }
+  
+  /* stored value display */
+  #value-display {
+    min-height: 1.2em;
+  }
+  

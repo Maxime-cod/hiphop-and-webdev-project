@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Counter</title>
+    <script>
+      window.process = { env: {} };
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@hop/hiphop": "/hiphop-client.mjs"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div>
+      <button id="btnA">A</button>
+      <button id="btnB">B</button>
+      <button id="btnR">Reset</button>
+    </div>
+    <div id="console">0</div>
+    
+    <script type="module">
+      import { mach } from "./counter.mjs";
+      globalThis.mach = mach;
+      console.log("Module loaded:", mach);
+      
+      // Display the current counter value.
+      mach.addEventListener("O", (evt) => {
+         document.getElementById("console").innerHTML = evt.nowval;
+      });
+      
+      // Log DEBUG messages to the console.
+      mach.addEventListener("DEBUG", (evt) => {
+         console.log("DEBUG: " + evt.nowval);
+      });
+      
+      // Global flags to accumulate button presses.
+      let pressedA = false;
+      let pressedB = false;
+      let resetPressed = false;
+      
+      // Button event listeners.
+      document.getElementById("btnA").addEventListener("click", () => {
+         pressedA = true;
+      });
+      document.getElementById("btnB").addEventListener("click", () => {
+         pressedB = true;
+      });
+      document.getElementById("btnR").addEventListener("click", () => {
+         resetPressed = true;
+      });
+      
+      // Every 500ms, send a tick reaction with explicit signal values.
+      setInterval(() => {
+        console.log("Sending tick reaction", { TICK: 1, A: pressedA ? 1 : 0, B: pressedB ? 1 : 0, R: resetPressed ? 1 : 0 });
+
+         mach.react({
+           TICK: 1,
+           A: pressedA ? 1 : 0,
+           B: pressedB ? 1 : 0,
+           R: resetPressed ? 1 : 0
+         });
+         // Clear flags after sending.
+         pressedA = false;
+         pressedB = false;
+         resetPressed = false;
+      }, 1000);
+    </script>
+  </body>
+</html>

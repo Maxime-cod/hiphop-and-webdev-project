@@ -1,0 +1,58 @@
+body {
+    font-family: sans-serif;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: #fafafa;
+    color: #333;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+  section {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+  }
+  
+  section h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+  }
+  
+  #display {
+    font-size: 3rem;
+    text-align: center;
+  }
+  
+  #next-alarm {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  
+  button {
+    margin-left: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+  }
+  
+  input {
+    width: 3rem;
+    text-align: center;
+  }
+  
+  #alarms {
+    list-style: none;
+    padding: 0;
+  }
+  
+  #alarms li {
+    border-bottom: 1px solid #ddd;
+    padding: 0.25rem 0;
+  }
+  

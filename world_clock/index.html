@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>World Clock (Luxon)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>World Clock</h1>
+
+  <div id="add-city">
+    <input id="city-name" type="text" placeholder="City name (e.g. New Delhi)" />
+    <div class="tz-picker">
+      <input id="city-tz" type="text" placeholder="Timezone (start typing…)" autocomplete="off" />
+      <ul id="tz-list" class="hidden"></ul>
+    </div>
+    <button id="add-btn">Add City</button>
+  </div>
+
+  <div id="clocks"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

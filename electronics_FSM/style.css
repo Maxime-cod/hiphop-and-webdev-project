@@ -1,0 +1,71 @@
+/* style.css */
+body {
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+}
+
+/* Flex container for the three FSM panels */
+.fsm-container {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px;
+}
+
+.fsm-panel {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  width: 30%;
+  text-align: center;
+}
+
+.fsm-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Display for current state */
+.state-display {
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+/* SVG styling for a binary FSM (two circles) */
+.state-svg {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.state-circle {
+  stroke: #000;
+  stroke-width: 2px;
+  fill: #ddd;
+  transition: fill 0.3s;
+}
+
+.active {
+  fill: #4CAF50;
+}
+
+.circle-label {
+  font-size: 14px;
+  text-anchor: middle;
+  fill: #333;
+}
+
+/* Button styling */
+.signal-btn {
+  margin: 5px;
+  padding: 6px 12px;
+  font-size: 1em;
+}
+
+/* Accepted signals list */
+.signals-list {
+  margin-top: 10px;
+  font-style: italic;
+}

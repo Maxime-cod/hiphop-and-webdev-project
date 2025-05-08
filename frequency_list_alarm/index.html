@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HipHop Alarm Clock</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    #alarmText {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: black;
+    }
+    #addAlarmForm {
+      margin: 20px 0;
+    }
+    #alarmsList {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+      max-width: 400px;
+    }
+    #alarmsList li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    #alarmsList button {
+      margin-left: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    input[type="time"] {
+      padding: 8px;
+      font-size: 16px;
+    }
+  </style>
+  <!-- Dummy process object for modules that rely on process.env -->
+  <script>
+    window.process = { env: {} };
+  </script>
+  <!-- Import map: maps '@hop/hiphop' to your HipHop client file -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@hop/hiphop": "/hiphop-client.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="alarmText">--:--:--</div>
+  <!-- Audio element for the beep sound -->
+  <audio id="beepSound" src="beep.mp3" preload="auto" type="audio/mpeg"></audio>
+
+  <!-- Form to add new alarms -->
+  <div id="addAlarmForm" style="display: flex; gap:8px; align-items: center;">
+    <input id="alarmTimeInput" type="time" />
+  
+    <!-- NEW: alarm label text -->
+    <input id="alarmLabelInput"
+           type="text"
+           placeholder="Label (optional)"
+           style="padding:8px; font-size:16px;"/>
+  
+    <label>
+      <input id="snoozeOption" type="checkbox" checked />
+      Enable Snooze
+    </label>
+    
+    <label>
+        Sound:
+        <select id="soundSelect">
+          <option value="beep.mp3">Beep</option>
+          <option value="bell.mp3">Bell</option>
+          <option value="ding.mp3">Ding</option>
+        </select>
+      </label>
+
+      <label>
+        Frequency:
+        <select id="frequencySelect">
+          <option value="once">Once</option>
+          <option value="daily" selected>Daily</option>
+        </select>
+      </label>
+      
+  
+    <button id="addAlarmButton">Add Alarm</button>
+  </div>
+  
+  
+
+  <!-- List of active alarms -->
+  <ul id="alarmsList"></ul>
+
+  <script type="module">
+    // Unlock audio on first user interaction
+    document.addEventListener('click', () => {
+      const beepSound = document.getElementById("beepSound");
+      if (beepSound) {
+        beepSound.play()
+          .then(() => { beepSound.pause(); console.log("Audio unlocked!"); })
+          .catch(err => console.error("Audio unlock error:", err));
+      }
+    }, { once: true });
+
+    import { AlarmSpec } from "./alarm.mjs";
+    import { ReactiveMachine } from "@hop/hiphop";
+
+    const alarmText = document.getElementById("alarmText");
+    // const beepSound = document.getElementById("beepSound");
+    const alarmsList = document.getElementById("alarmsList");
+    const addAlarmBtn = document.getElementById("addAlarmButton");
+    const alarmTimeInput = document.getElementById("alarmTimeInput");
+    const snoozeOption = document.getElementById("snoozeOption");
+    const alarmLabelInput = document.getElementById("alarmLabelInput");
+    const soundSelect = document.getElementById("soundSelect");
+    const frequencySelect = document.getElementById("frequencySelect");
+
+
+
+
+    // Store alarm entries
+    const alarms = [];
+
+    // Add new alarm
+    addAlarmBtn.addEventListener("click", () => {
+      const time = alarmTimeInput.value;
+      if (!time) return alert("Pick a time first!");
+
+      const allowSnooze = snoozeOption.checked;
+      const label = alarmLabelInput.value.trim();
+      const frequency = frequencySelect.value;   // “once” or “daily”
+
+      // Create HipHop machine for this alarm
+      const mach = new ReactiveMachine(AlarmSpec);
+
+      // Create list item
+    const li = document.createElement("li");
+
+    // If user provided a label, show it
+    if (label) {
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = label ;
+        labelSpan.style.fontWeight = "bold";
+        li.append(labelSpan);
+    }
+    // Then show the time
+    const timeSpan = document.createElement("span");
+    timeSpan.textContent = time;
+    li.append(timeSpan);
+
+      // only if snooze is enabled, add the button + its handler:
+      const snoozeBtn = document.createElement("button");
+    if (allowSnooze) {
+        snoozeBtn.textContent = "Snooze";
+        li.append(snoozeBtn);
+        snoozeBtn.addEventListener("click", () => {mach.react({ CLOCK: true, SNOOZE: true });});
+    }
+    
+
+      // Stop button
+      const stopBtn = document.createElement("button");
+      stopBtn.textContent = "Stop";
+      li.append(stopBtn);
+      if (snoozeBtn)   snoozeBtn.disabled = true;
+      stopBtn.disabled = true;
+
+      alarmsList.append(li);
+
+      // Clone beep audio
+      const soundSrc = soundSelect.value;         // e.g. "bell.mp3"
+
+      // new: create an Audio for the chosen sound
+    const alarmBeep = new Audio(soundSrc);
+    alarmBeep.preload = "auto";
+
+    const alarm = {
+  time,
+  label,
+  mach,
+  li,
+  snoozeBtn,     // may be undefined if snooze disabled
+  stopBtn,
+  frequency,     // “once” or “daily”
+  fired: false,  resetDone: false
+};
+
+alarms.push(alarm);
+
+
+      // Listen for BEEP events
+      mach.addEventListener("BEEP", evt => {
+        if (evt.nowval) {
+          // Flash red
+          li.style.color = "red";
+          // Update global display
+          alarmText.style.color = "red";
+          setTimeout(() => { li.style.color = ""; alarmText.style.color = ""; }, 200);
+
+          // Play beep sound
+          alarmBeep.currentTime = 0;
+          alarmBeep.play().catch(err => console.error("Audio play error:", err));
+        }
+      });
+
+      // Button handlers
+      snoozeBtn.addEventListener("click", () => {
+        mach.react({ CLOCK: true, SNOOZE: true });
+      });
+      stopBtn.addEventListener("click", () => {
+        mach.react({ CLOCK: true, STOP: true });
+        // Only now disable the buttons:
+        stopBtn.disabled = true;
+        if (snoozeBtn) snoozeBtn.disabled = true;
+        if (frequency === "once") {
+            alarm.fired = true;   // mark it so you don’t send future CLOCK pulses
+            }
+});
+
+      // Remember this alarm
+      alarms.push(alarm);
+
+    });
+
+ // Keep track of which day we last reset on:
+let lastResetDay = new Date().getDate();
+
+
+  // Global clock pulse every second
+  setInterval(() => {
+  const now = new Date();
+  const currentMin = now.getHours() * 60 + now.getMinutes();
+
+  // live time display
+  alarmText.textContent = now.toLocaleTimeString();
+  alarmText.style.color = "black";
+
+  alarms.forEach(al => {
+    // compute alarm minute
+    const [h, m] = al.time.split(":").map(Number);
+    const alarmMin = h * 60 + m;
+
+    // 1️⃣ Activation moment?
+    const justHit   = currentMin === alarmMin;
+    const shouldReset = justHit &&
+                        (al.frequency === "daily" || !al.fired) &&
+                        !al.resetDone;
+
+    // 2️⃣ If so: enable buttons & send RESET + a CLOCK tick
+    if (shouldReset) {
+      if (al.snoozeBtn) al.snoozeBtn.disabled = false;
+      al.stopBtn.disabled = false;
+
+      al.mach.react({ RESET: true, CLOCK: true });
+      al.resetDone = true;
+      return;
+    }
+
+    // 3️⃣ Otherwise, normal CLOCK pulse if past the minute
+    const clockPulse = currentMin >= alarmMin;
+    al.mach.react({ CLOCK: clockPulse });
+
+    // 4️⃣ Clear the reset flag once you leave the alarm minute
+    if (!justHit) {
+      al.resetDone = false;
+    }
+  });
+}, 1000);
+
+  </script>
+</body>
+</html>

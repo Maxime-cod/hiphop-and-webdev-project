@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Alarm Timer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Multi-Alarm Timer</h1>
+
+  <!-- Total duration + Loop count setup -->
+  <section class="setup">
+    <h2>Set Total Duration &amp; Loops</h2>
+    <input id="hours"   type="number" min="0" placeholder="HH"> :
+    <input id="minutes" type="number" min="0" max="59" placeholder="MM"> :
+    <input id="seconds" type="number" min="0" max="59" placeholder="SS">
+    &nbsp;&times;&nbsp;
+    <input id="loops"   type="number" min="1" placeholder="Loops">
+    <button id="set-btn">Set Timer</button>
+  </section>
+
+  <!-- Live display -->
+  <section class="display">
+    <div id="display">00:00:00</div>
+    <div id="next-alarm">Next alarm in: —</div>
+    <div id="loop-info">Loop: —/—</div>
+  </section>
+
+  <!-- Controls -->
+  <section class="controls">
+    <button id="start-btn" disabled>Start</button>
+    <button id="reset-btn" disabled>Reset</button>
+  </section>
+
+  <!-- Intermediary alarm setup -->
+  <section class="alarms-setup">
+    <h2>Add Intermediary Alarm</h2>
+    <input id="ahours"   type="number" min="0" placeholder="HH"> :
+    <input id="aminutes" type="number" min="0" max="59" placeholder="MM"> :
+    <input id="aseconds" type="number" min="0" max="59" placeholder="SS">
+    <button id="add-btn" disabled>Add Alarm</button>
+  </section>
+
+  <ul id="alarms"></ul>
+
+  <audio id="bell"      src="bell.mp3" preload="auto"></audio>
+  <audio id="loop-end"  src="loop-end.mp3" preload="auto"></audio>
+  <audio id="alarm"     src="alarm.mp3" preload="auto"></audio>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

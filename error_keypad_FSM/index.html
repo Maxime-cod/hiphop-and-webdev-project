@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Three-State FSM + Error State</title>
+  <script type="importmap">
+  {
+    "imports": { "xstate": "https://esm.sh/xstate@4" }
+  }
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .main-container {
+      display: grid;
+      grid-template-columns: 50% 50%;
+      align-items: stretch;
+      max-width: 100vw;
+      margin: auto;
+    }
+    .diagram-panel {
+      width: 600px;
+      height: 350px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .keypad-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .diagram {
+      width: 100%;
+      height: 100%;
+    }
+    .state {
+      fill: #ddd;
+      stroke: #333;
+      stroke-width: 2;
+      transition: fill 0.3s;
+    }
+    .state.active { fill: #4CAF50; }
+    /* error state in red */
+    #sE.active { fill: #F44336; }
+    .arrow {
+      stroke: #888;
+      stroke-width: 2;
+      marker-end: url(#arrowhead);
+      transition: stroke 0.2s, marker-end 0.2s;
+    }
+    .arrow.highlight {
+      stroke: #FF5722;
+      marker-end: url(#arrowhead-highlight);
+    }
+    .label {
+      font-size: 14px;
+      fill: #333;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-auto-rows: 60px;
+      gap: 10px;
+    }
+    .key-btn {
+      font-size: 1.3em;
+      border: none;
+      border-radius: 6px;
+      background: #2196F3;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .key-btn:hover { background: #1976D2; }
+  </style>
+</head>
+<body>
+  <h1>Three-State FSM + Error State</h1>
+  <div class="main-container">
+    <!-- Diagram -->
+    <div class="diagram-panel">
+      <svg class="diagram" viewBox="0 0 600 300">
+        <defs>
+          <marker id="initArrow" markerWidth="6" markerHeight="4"
+                  refX="6" refY="2" orient="auto">
+            <path d="M0,0 L6,2 L0,4 z" fill="#000" />
+          </marker>
+          <marker id="arrowhead" markerWidth="5" markerHeight="4"
+                  refX="5" refY="2" orient="auto">
+            <polygon points="0 0,5 2,0 4" fill="#888" />
+          </marker>
+          <marker id="arrowhead-highlight" markerWidth="5" markerHeight="4"
+                  refX="5" refY="2" orient="auto">
+            <polygon points="0 0,5 2,0 4" fill="#FF5722" />
+          </marker>
+        </defs>
+
+        <!-- initial marker -->
+        <circle cx="60" cy="150" r="5" fill="#000" />
+        <line x1="65" y1="150" x2="70" y2="150"
+              stroke="#000" stroke-width="2"
+              marker-end="url(#initArrow)" />
+
+        <!-- States A, B, C, E -->
+        <circle id="sA" class="state" cx="100" cy="150" r="30" />
+        <text x="100" y="155" text-anchor="middle" class="label">A</text>
+
+        <circle id="sB" class="state" cx="280" cy="100" r="30" />
+        <text x="280" y="105" text-anchor="middle" class="label">B</text>
+
+        <circle id="sC" class="state" cx="280" cy="200" r="30" />
+        <text x="280" y="205" text-anchor="middle" class="label">C</text>
+
+        <circle id="sE" class="state" cx="480" cy="150" r="30" />
+        <text x="480" y="155" text-anchor="middle" class="label">E</text>
+
+        <!-- Transitions -->
+        <line id="aToB" class="arrow" x1="130" y1="150" x2="250" y2="110" />
+        <text x="180" y="130" text-anchor="middle" class="label">0</text>
+
+        <line id="aToC" class="arrow" x1="130" y1="150" x2="250" y2="190" />
+        <text x="180" y="180" text-anchor="middle" class="label">1–9</text>
+
+        <path id="cLoop" class="arrow"
+          d="M310,200 C360,240 360,130 306,187"
+          fill="none" marker-end="url(#arrowhead)" />
+        <text x="320" y="200" text-anchor="middle" class="label">1–9</text>
+      </svg>
+    </div>
+
+    <!-- Keypad + Reset -->
+    <div class="keypad-panel">
+      <div class="keypad">
+        <!-- 1–9 -->
+        <button class="key-btn" data-key="1">1</button>
+        <button class="key-btn" data-key="2">2</button>
+        <button class="key-btn" data-key="3">3</button>
+        <button class="key-btn" data-key="4">4</button>
+        <button class="key-btn" data-key="5">5</button>
+        <button class="key-btn" data-key="6">6</button>
+        <button class="key-btn" data-key="7">7</button>
+        <button class="key-btn" data-key="8">8</button>
+        <button class="key-btn" data-key="9">9</button>
+        <!-- 0 centered -->
+        <div></div>
+        <button class="key-btn" data-key="0">0</button>
+        <div></div>
+      </div>
+      <div style="text-align:center; margin-top:20px;">
+        <button id="reset-btn" class="key-btn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

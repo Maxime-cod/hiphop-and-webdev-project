@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HipHop Alarm Clock</title>
+  <style>
+    #alarmText {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px;
+      color: black; /* initial color is black */
+    }
+  </style>
+  <!-- Dummy process object for modules that rely on process.env -->
+  <script>
+    window.process = { env: {} };
+  </script>
+  <!-- Import map: make sure your server exposes /hiphop-client.mjs -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@hop/hiphop": "/hiphop-client.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="alarmText">Alarm</div>
+  <div style="text-align: center;">
+    <button id="snoozeButton">Snooze</button>
+    <button id="stopButton">Stop</button>
+  </div>
+  
+  <script type="module">
+    // Import the compiled HipHop alarm module.
+    import { mach } from "./alarm.mjs";
+    
+    console.log("Reactive machine imported:", mach);
+    
+    const alarmText = document.getElementById("alarmText");
+    
+    // Listen for the BEEP event and update the UI.
+    mach.addEventListener("BEEP", evt => {
+      // Change color based on the nowval property.
+      if (evt.nowval) {
+        alarmText.style.color = "red";
+      } else {
+        alarmText.style.color = "black";
+      }
+    });
+    
+    // A helper function to send a clock pulse.
+    // Optionally merge in extra signals like SNOOZE or STOP.
+    function sendClockPulse(extraSignals = {}) {
+      const signals = { CLOCK: true, ...extraSignals };
+      console.log("Sending clock pulse with signals:", signals);
+      mach.react(signals);
+    }
+    
+    // Send a clock pulse every second.
+    let clockInterval = setInterval(() => {
+      sendClockPulse();
+    }, 1000);
+    
+    // When the snooze button is clicked, send a clock pulse that also includes the SNOOZE signal.
+    document.getElementById("snoozeButton").addEventListener("click", () => {
+      console.log("Snooze button clicked.");
+      sendClockPulse({ SNOOZE: true });
+    });
+    
+    // When the stop button is clicked, send a clock pulse that also includes the STOP signal.
+    document.getElementById("stopButton").addEventListener("click", () => {
+      console.log("Stop button clicked.");
+      sendClockPulse({ STOP: true });
+    });
+    
+  </script>
+</body>
+</html>
