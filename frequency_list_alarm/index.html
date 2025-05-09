@@ -272,7 +272,7 @@ let lastResetDay = new Date().getDate();
     }
 
     // 3️⃣ Otherwise, normal CLOCK pulse if past the minute
-    const clockPulse = currentMin >= alarmMin;
+    const clockPulse = currentMin === alarmMin;
     al.mach.react({ CLOCK: clockPulse });
 
     // 4️⃣ Clear the reset flag once you leave the alarm minute

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Axios Example Page</title>
+  <!-- Import map to resolve the "axios" module from a CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "axios": "https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/esm/axios.js"
+      }
+    }
+    </script>
+    
+</head>
+<body>
+  <h1>Axios Example: API Data</h1>
+  <button id="loadData">Load Data</button>
+  <pre id="result" style="background: #f4f4f4; padding: 1rem;"></pre>
+
+  <!-- Using a module script to import and use Axios -->
+  <script type="module">
+    import axios from "axios";
+
+    // Get references to the button and result container
+    const button = document.getElementById("loadData");
+    const resultDiv = document.getElementById("result");
+
+    // Add a click event listener to load data when the button is clicked
+    button.addEventListener("click", async () => {
+      try {
+        // Make a GET request to a sample API endpoint
+        const response = await axios.get("https://jsonplaceholder.typicode.com/posts/1");
+        // Display the fetched data as a formatted JSON string
+        resultDiv.textContent = JSON.stringify(response.data, null, 2);
+      } catch (error) {
+        resultDiv.textContent = "Error fetching data: " + error;
+      }
+    });
+  </script>
+</body>
+</html>
